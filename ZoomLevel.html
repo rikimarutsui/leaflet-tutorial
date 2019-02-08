@@ -1,0 +1,204 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="leaflet/leaflet.css"/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script src="leaflet/leaflet.js"></script>
+		<style>	
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		#map0, #map1, #map2, #map3, #map4, #map5 {
+			width: 600px;
+			height: 400px;
+		}
+		</style>
+	<head>
+	<body>
+		<p>Zero Zoom</p>
+		<div id="map0"></div>
+		<hr/>
+		<script>
+			/** Make a simple map locked at zoom zero **/
+			var cartodbAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
+			
+			var map0 = L.map('map0', {
+				minZoom: 0,
+				maxZoom: 0
+			});
+			
+			var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: cartodbAttribution
+			}).addTo(map0);
+			
+			map0.setView([0, 0], 0);
+		</script>
+		
+		<p>One Zoom</p>
+		<div id="map1"></div>
+		<hr/>
+		<script>	
+			/** Make a simple map locked at zoom as one **/
+			var map1 = L.map('map1', {
+				minZoom: 1,
+				maxZoom: 1
+			});
+			
+			var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: cartodbAttribution
+			}).addTo(map1);
+			
+			map1.setView([1, 1], 1);
+			
+		</script>
+		
+		<p>Control Scale</p>
+		<div id="map2"></div>
+		<hr/>
+		<script>	
+			/** Make Control Scale **/
+			var map2 = L.map('map2', {
+				minZoom: 1,
+				maxZoom: 1,
+				dragging: false
+			});
+			
+			var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: cartodbAttribution
+			}).addTo(map2);
+			
+			L.control.scale({maxWidth: 150}).addTo(map2);
+			
+			setInterval(function(){
+				map2.setView([0, 0], 0, {duration: 1, animate: true});
+				setTimeout(function(){
+					map2.setView([60, 0], 0, {duration: 1, animate: true});
+				}, 2000);
+			}, 4000);
+			
+			map2.setView([0, 0], 0);
+		</script>
+		
+		<p>Controling the zoom</p>
+		<div id="map3"></div>
+		<hr/>
+		<script>	
+			/** Make Controlling the Zoom **/
+			var map3 = L.map('map3', {
+				minZoom: 0,
+				maxZoom: 1
+			});
+			
+			var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: cartodbAttribution
+			}).addTo(map3);
+			
+			setInterval(function(){
+				map3.setZoom(0);
+				setTimeout(function(){
+					map3.setZoom(1);
+				}, 2000);
+			}, 4000);
+
+			var ZoomViewer = L.Control.extend({
+				onAdd: function(){
+					var gauge = L.DomUtil.create('div');
+					gauge.style.width = '200px';
+					gauge.style.background = 'rgba(255,255,255,0.5)';
+					gauge.style.textAlign = 'left';
+					map3.on('zoomstart zoom zoomend', function(ev){
+						gauge.innerHTML = 'Zoom level: ' + map3.getZoom();
+					})
+					return gauge;
+				}
+			});
+
+			(new ZoomViewer).addTo(map3);
+
+			map3.setView([0, 0], 0);
+		</script>
+		
+		<p>Fractional Zoom</p>
+		<div id="map4"></div>
+		<hr/>
+		<script>
+			/** Make Fractional zoom **/
+			var map4 = L.map('map4', {
+				minZoom: 0,
+				maxZoom: 1,
+				zoomSnap: 0.25,
+				dragging: false
+			});
+			
+			var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: cartodbAttribution
+			}).addTo(map4);
+			
+			function zoomCycle(){
+				map4.setZoom(0);
+				timeouts = [];
+				timeouts.push(setTimeout(function(){ map4.setZoom(0.25); },  1000));
+				timeouts.push(setTimeout(function(){ map4.setZoom(0.50); },  2000));
+				timeouts.push(setTimeout(function(){ map4.setZoom(0.75); },  3000));
+				timeouts.push(setTimeout(function(){ map4.setZoom(1);    },  4000));
+				timeouts.push(setTimeout(function(){ map4.setZoom(0.75); },  5000));
+				timeouts.push(setTimeout(function(){ map4.setZoom(0.50); },  6000));
+				timeouts.push(setTimeout(function(){ map4.setZoom(0.25); },  7000));
+			}
+			zoomCycle();
+			
+			var zoomingInterval = setInterval(zoomCycle, 8000);
+			
+			var ZoomViewer = L.Control.extend({
+				onAdd: function(){
+					var gauge = L.DomUtil.create('div');
+					gauge.style.width = '200px';
+					gauge.style.background = 'rgba(255,255,255,0.5)';
+					gauge.style.textAlign = 'left';
+					map4.on('zoomstart zoom zoomend', function(ev){
+						gauge.innerHTML = 'Zoom level: ' + map4.getZoom();
+					})
+					return gauge;
+				}
+			});
+			
+			(new ZoomViewer).addTo(map4);
+			
+			map4.setView([0, 0], 0);
+		</script>
+		
+		<p>Fractional Zoom by manual</p>
+		<div id="map5"></div>
+		<hr/>
+		<script>
+			var map5 = L.map('map5', {
+				mminZoom: 0,
+				maxZoom: 1,
+				zoomDelta: 0.25,
+				zoomSnap: 0, 
+				dragging: false
+			});
+			
+			var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: cartodbAttribution
+			}).addTo(map5);
+			
+			var ZoomViewer = L.Control.extend({
+				onAdd: function(){
+					var gauge = L.DomUtil.create('div');
+					gauge.style.width = '200px';
+					gauge.style.background = 'rgba(255,255,255,0.5)';
+					gauge.style.textAlign = 'left';
+					map5.on('zoomstart zoom zoomend', function(ev){
+						gauge.innerHTML = 'Zoom level: ' + map5.getZoom();
+					})
+					return gauge;
+				}
+			});
+			
+			(new ZoomViewer).addTo(map5);
+			
+			map5.setView([0, 0], 0);
+		</script>
+	</body>
+</html>
