@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="leaflet/leaflet.css"/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script src="leaflet/leaflet.js"></script>
+		<style>	
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		#map0, #map1, #map2, #map3, #map4 {
+			width: 600px;
+			height: 400px;
+		}
+		</style>
+	<head>
+	<body>
+		<p>TMS //Cannot be used</p>
+		<div id="map0"></div>
+		<hr/>
+		<script>
+			var map0 = L.map('map0').setView([-14.43, -59.23], 3);
+			
+			var tms_ne = L.tileLayer('https://demo.boundlessgeo.com/geoserver/gwc/service/tms/1.0.0/ne:ne@EPSG:900913@png/{z}/{x}/{y}.png', {
+				tms: true
+			}).addTo(map0);
+
+			var tms_bluemarble = L.tileLayer('https://demo.boundlessgeo.com/geoserver/gwc/service/tms/1.0.0/nasa:bluemarble@EPSG:900913@jpg/{z}/{x}/{y}.jpg', {
+				tms: true
+			});
+		</script>
+	</body>
+</html>
