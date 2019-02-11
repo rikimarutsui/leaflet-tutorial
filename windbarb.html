@@ -1,0 +1,57 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="leaflet/leaflet.css"/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<style>
+			body {
+				padding: 0;
+				margin: 0;
+			}
+			html, body, #map {
+				height: 100%;
+				width: 100%;
+			}
+    </style>
+	</head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<body>
+		<div id="map"></div>
+		<script src="leaflet/leaflet.js"></script>
+		<script src="leaflet/leaflet-windbarb.js"></script>
+		<script>
+				/**var southWest = L.latLng(21.945593,113.417358),
+					northEast = L.latLng(22.693853, 114.717865),
+					bounds = L.latLngBounds(southWest, northEast);**/
+
+				var map = L.map('map',{
+					//maxBounds: bounds,
+					//minZoom: 12,
+					//maxZoom: 14
+				}).setView([22.427532, 114.128723], 10);
+				
+				//map.fitBounds(bounds);
+				
+				L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+					attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+					subdomains: 'abcd',
+					ext: 'png'
+				}).addTo(map);
+				
+				var meteoPoints = [
+					[ 21.951285 , 113.522309, 5, 190], //Ipsach
+					[ 21.965585 , 114.511009, 30, 90], //Mörigen
+					[ 22.561115 , 114.522999, 47, 170], //Twann
+					[ 21.967567 , 113.666777, 92, 45], //Vingelz
+					[ 22.111222 , 113.444444, 125 , 280], //Twannberg
+					[ 21.989819 , 114.112233, 200, 135], //Nidau
+					[ 22.000121 , 113.772910, 62 , 360 ]  //lelanderon
+				];
+						
+				meteoPoints.forEach(function(p){
+					var icon = L.WindBarb.icon({deg: p[3], speed: p[2]});
+					var marker = L.marker([p[0],p[1]], {icon: icon}).addTo(map).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
+																						  "<p>Wind Direction: "+p[3]+"</p>");            
+				});
+		</script>
+	</body>
+</html>
