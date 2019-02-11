@@ -1,6 +1,8 @@
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="getPHPJson.js"></script>
 <script>
 	$.getJSON('readjson.php', function(data){
+		jsons = data;
 		console.log(data);
 	});
 </script>
