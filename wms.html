@@ -1,0 +1,97 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="leaflet/leaflet.css"/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script src="leaflet/leaflet.js"></script>
+		<style>	
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		#map0, #map1, #map2, #map3, #map4 {
+			width: 600px;
+			height: 400px;
+		}
+		</style>
+	<head>
+	<body>
+		<p>Basic ne:ne Layer</p>
+		<div id="map0"></div>
+		<hr/>
+		<script>
+			var map0 = L.map('map0').setView([-14.43, -59.23], 3);
+			
+			var wmsLayer0 = L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+				layers: 'ne:ne'
+			}).addTo(map0);
+		</script>
+		
+		<p>nasa:bluemarble WMS Layer</p>
+		<div id="map1"></div>
+		<hr/>
+		<script>
+			var map1 = L.map('map1').setView([-14.43, -59.23], 3);
+			
+			var wmsLayer1 = L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+				layers: 'nasa:bluemarble'
+			}).addTo(map1);
+		</script>
+		
+		<p>Combine 2 WMS Layers into one map</p>
+		<div id="map2"></div>
+		<hr/>
+		<script>
+			var map2 = L.map('map2').setView([-14.43, -59.23], 3);
+			
+			var countriesAndBoundaries = L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+				layers: 'ne:ne_10m_admin_0_countries,ne:ne_10m_admin_0_boundary_lines_land'
+			}).addTo(map2);
+		</script>
+		
+		<p>More Than 1 Layers in the map</p>
+		<div id="map3"></div>
+		<hr/>
+		<script>
+			var map3 = L.map('map3').setView([-14.43, -59.23], 3);
+			
+			var basemaps = {
+								Countries: L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+									layers: 'ne:ne_10m_admin_0_countries'
+								}),
+
+								Boundaries: L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+									layers: 'ne:ne_10m_admin_0_boundary_lines_land'
+								}),
+
+								'Countries, then boundaries': L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+									layers: 'ne:ne_10m_admin_0_countries,ne:ne_10m_admin_0_boundary_lines_land'
+								}),
+
+								'Boundaries, then countries': L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+									layers: 'ne:ne_10m_admin_0_boundary_lines_land,ne:ne_10m_admin_0_countries'
+								}),
+								'NASA BlueMarble': L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+									layers: 'nasa:bluemarble'
+								})
+							};
+			
+			L.control.layers(basemaps).addTo(map3);
+			basemaps.Countries.addTo(map3);
+		</script>
+		
+		<p>Other Coordinate systems</p>
+		<div id="map4"></div>
+		<hr/>
+		<script>
+			var map4 = L.map('map4', {
+				crs: L.CRS.EPSG4326 // Or CRS:3857, CRS:3395 and CRS:4326
+			});
+			
+			map4.setView([-14.43, -59.23], 3);
+			
+			var wmsLayer4 = L.tileLayer.wms('https://demo.boundlessgeo.com/geoserver/ows?', {
+				layers: 'nasa:bluemarble'
+			}).addTo(map4);
+		</script>
+	</body>
+</html>
