@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Stict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang = "en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<link rel="stylesheet" href="leaflet/leaflet.css"/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> 
+		<style>
+			body {
+				padding: 0;
+				margin: 0;
+			}
+			html, body, #map {
+				height: 100%;
+				width: 100%;
+			}
+    </style>
+	</head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<body>
+		<div id="map"></div>
+		<script src="leaflet/leaflet.js"></script>
+		<script src="leaflet/leaflet-windbarb.js"></script>
+		<script>
+				// Get Json Files
+				var url = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/readjson2.php';
+				
+				$.getJSON(url, function(data){
+					var meteoPoints = [];
+					console.log(typeof(data));
+					data.forEach(function(element){
+						var tmp_arr = [element.Lat, element.Lng, element.windSpd, element.windDir];
+						meteoPoints.push(tmp_arr);
+					});
+					runMeteoPoints(meteoPoints);
+				});
+				
+				function runMeteoPoints(meteoPoints){
+					var windbarb_arr = [], windbarb;
+					
+					for(var i = 0; i < meteoPoints.length; i++){
+						var p = meteoPoints[i];
+						var icon = L.WindBarb.icon({deg: p[3], speed: p[2]});
+						var marker = L.marker([p[0],p[1]], {icon: icon}).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
+																							  "<p>Wind Direction: "+p[3]+"</p>");  
+						windbarb_arr.push(marker);
+					}
+					
+					windbarb = L.layerGroup(windbarb_arr);
+					
+					createMap(windbarb)
+				}
+				
+				function createMap(windbarb){
+					var map = L.map('map').setView([22.427532, 114.128723], 10);
+					
+					var basemaps = {
+						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+							subdomains: 'abcd',
+							ext: 'png'
+						})
+					};
+					
+					var overlays = {
+						"Windbarb": windbarb
+					};
+					
+					L.control.layers(basemaps, overlays).addTo(map);
+					basemaps.Basic.addTo(map);
+				}
+		</script>
+	</body>
+</html>
