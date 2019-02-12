@@ -23,7 +23,7 @@ function readJSONFile($files, $path = './'){
 			'Lng' => $json_s->df17->Lon,
 			'windSpd' => $json_s->windSpd_kt,
 			'windDir' => $json_s->windDir_deg,
-			'temperature' => $json_s->temperature_K,
+			'geometric_height' => $json_s->df17->geometric_height,
 			'createdAt' => $json_s->createdAt
 		));
 		$jsons = $jsons . $json . ',';
@@ -32,7 +32,7 @@ function readJSONFile($files, $path = './'){
 	return $jsons;
 }
 
-$files = readJSONList('./jsondata-sampleset/');
-$jsons = readJSONFile($files, './jsondata-sampleset/');
+$files = readJSONList('./jsondata/');
+$jsons = readJSONFile($files, './jsondata/');
 echo $jsons;
 ?>
