@@ -1,8 +1,11 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Stict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang = "en">
 	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<link rel="stylesheet" href="leaflet/leaflet.css"/>
 		<!-- Make sure you put this AFTER Leaflet's CSS -->
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> 
 		<style>
 			body {
 				padding: 0;
@@ -39,30 +42,24 @@
 				}).addTo(map);
 				
 				// Get Json Files
-				//var jsons;
-				$.getJSON('readjson.php', function(data){
-					jsons = data;
-					console.log(data);
+				var url = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/readjson.php';
+				
+				$.getJSON(url, function(data){
+					var meteoPoints = [];
+					data.forEach(function(element){
+						var tmp_arr = [element.df17.Lat, element.df17.Lon, element.windSpd_kt, element.windDir_deg];
+						meteoPoints.push(tmp_arr);
+					});
+					runMeteoPoints(meteoPoints)
 				});
 				
-				//console.log(jsons);
-				
-				// Set up meteoPoints
-				var meteoPoints = [
-					[ 21.951285 , 113.522309, 5, 190], //Ipsach
-					[ 21.965585 , 114.511009, 30, 90], //Mörigen
-					[ 22.561115 , 114.522999, 47, 170], //Twann
-					[ 21.967567 , 113.666777, 92, 45], //Vingelz
-					[ 22.111222 , 113.444444, 125 , 280], //Twannberg
-					[ 21.989819 , 114.112233, 200, 135], //Nidau
-					[ 22.000121 , 113.772910, 62 , 360 ]  //lelanderon
-				];
-						
-				meteoPoints.forEach(function(p){
-					var icon = L.WindBarb.icon({deg: p[3], speed: p[2]});
-					var marker = L.marker([p[0],p[1]], {icon: icon}).addTo(map).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
-																						  "<p>Wind Direction: "+p[3]+"</p>");            
-				});
+				function runMeteoPoints(meteoPoints){
+					meteoPoints.forEach(function(p){
+						var icon = L.WindBarb.icon({deg: p[3], speed: p[2]});
+						var marker = L.marker([p[0],p[1]], {icon: icon}).addTo(map).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
+																							  "<p>Wind Direction: "+p[3]+"</p>");            
+					});
+				}
 		</script>
 	</body>
 </html>
