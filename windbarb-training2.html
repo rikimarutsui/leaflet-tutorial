@@ -23,6 +23,17 @@ strict.dtd">
 		<script src="leaflet/leaflet.js"></script>
 		<script src="leaflet/leaflet-windbarb.js"></script>
 		<script>
+				// Change Windbarb style globally
+				L.WindBarb.Icon.options = {
+					fillColor: '#FFFFFF',
+					pointRadius: 0,
+					strokeWidth: 2,
+					strokeLength: 20,
+					barbSpaceing: 5,
+					barbHeight: 5,
+					forceDir: false
+				};
+				
 				// Get Json Files
 				var url = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/readjson2.php';
 				
