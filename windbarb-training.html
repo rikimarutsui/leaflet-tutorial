@@ -6,6 +6,26 @@ strict.dtd">
 		<link rel="stylesheet" href="leaflet/leaflet.css"/>
 		<!-- Make sure you put this AFTER Leaflet's CSS -->
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> 
+		<script type="text/javascript" src="otherjs/gradientColor.js"></script>
+		<script type="text/javascript">
+			// Options of the Windbarb
+				var startWindLv = 0;
+				var endWindLv = 200;
+				var windStep = 50;
+				var windbarbLvColorSet = ['#ff0000', '#ff00ff', '#0000ff', '#00ffff'];
+			
+			// Set Up Gradient Color Set
+				var colorSet = generateColorWithManyColor(windbarbLvColorSet, windStep).reverse();
+				
+				function generateColorHex(windLv){
+					var border = Math.round((endWindLv - startWindLv) / colorSet.length * 10) / 10;
+					var index = 0;
+					if(windLv < border) index = 0;
+					else if (windLv > colorSet.length) index = colorSet.length - 1;
+					else index = Math.round(windLv / border) - 1;
+					return "#" + colorSet[index];
+				}
+		</script>
 		<style>
 			body {
 				padding: 0;
@@ -40,7 +60,14 @@ strict.dtd">
 					
 					for(var i = 0; i < meteoPoints.length; i++){
 						var p = meteoPoints[i];
-						var icon = L.WindBarb.icon({deg: p[3], speed: p[2]});
+						var color = generateColorHex(p[2]);
+						var icon = L.WindBarb.icon({
+									deg: p[3], 
+									speed: p[2],
+									strokeColorCircle: color,
+									strokeColorPath: color,
+									flagFillColor: color
+								});
 						var marker = L.marker([p[0],p[1]], {icon: icon}).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
 																							  "<p>Wind Direction: "+p[3]+"</p>");  
 						windbarb_arr.push(marker);
