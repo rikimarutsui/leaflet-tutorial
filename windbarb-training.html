@@ -4,28 +4,10 @@ strict.dtd">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<link rel="stylesheet" href="leaflet/leaflet.css"/>
+		<link rel="stylesheet" href="leaflet/leaflet-slider.css"/>
 		<!-- Make sure you put this AFTER Leaflet's CSS -->
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> 
 		<script type="text/javascript" src="otherjs/gradientColor.js"></script>
-		<script type="text/javascript">
-			// Options of the Windbarb
-				var startWindLv = 0;
-				var endWindLv = 200;
-				var windStep = 50;
-				var windbarbLvColorSet = ['#ff0000', '#ff00ff', '#0000ff', '#00ffff'];
-			
-			// Set Up Gradient Color Set
-				var colorSet = generateColorWithManyColor(windbarbLvColorSet, windStep).reverse();
-				
-				function generateColorHex(windLv){
-					var border = Math.round((endWindLv - startWindLv) / colorSet.length * 10) / 10;
-					var index = 0;
-					if(windLv < border) index = 0;
-					else if (windLv > colorSet.length) index = colorSet.length - 1;
-					else index = Math.round(windLv / border) - 1;
-					return "#" + colorSet[index];
-				}
-		</script>
 		<style>
 			body {
 				padding: 0;
@@ -40,12 +22,42 @@ strict.dtd">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<body>
 		<div id="map"></div>
-		<script src="leaflet/leaflet.js"></script>
-		<script src="leaflet/leaflet-windbarb.js"></script>
-		<script>
-				// Get Json Files
+		<script type="text/javascript" src="leaflet/leaflet.js"></script>
+		<script type="text/javascript" src="leaflet/leaflet-windbarb.js"></script>
+		<script src="leaflet/leaflet-slider.js"></script>
+		<script type="text/javascript">
+			/* Global Variables */
+				// Map Gloabl Variables
 				var url = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/readjson.php';
+				var map = L.map('map').setView([22.427532, 114.128723], 10), overlays, silder, globalMP;
+				var basemaps = {
+						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+							subdomains: 'abcd',
+							ext: 'png'
+						})};
+
+				// Options of Generate Windbarb Colors
+				var startWindLv = 0, endWindLv = 200, windStep = 30;
+				var windbarbLvColorSet = ['#ff0000', '#ff00ff', '#0000ff', '#00ffff'];
 				
+				// Options of Winbarb Plugin
+			
+			/* Set Up Gradient Color Set */
+				var colorSet = generateColorWithManyColor(windbarbLvColorSet, windStep).reverse();
+				
+				function generateColorHex(windLv){
+					var border = Math.round((endWindLv - startWindLv) / colorSet.length * 10) / 10;
+					var index = 0;
+					if(windLv < border) index = 0;
+					else if (windLv > colorSet.length) index = colorSet.length - 1;
+					else index = Math.round(windLv / border) - 1;
+					return "#" + colorSet[index];
+				}
+		</script>
+		
+		<script type="text/javascript">		
+			/* Get Json Files */
 				$.getJSON(url, function(data){
 					var meteoPoints = [];
 					data.forEach(function(element){
@@ -54,47 +66,50 @@ strict.dtd">
 					});
 					runMeteoPoints(meteoPoints);
 				});
-				
+			
+			/* Calculate and Display the MeteoPoints of Windbarb */
 				function runMeteoPoints(meteoPoints){
 					var windbarb_arr = [], windbarb;
-					
+					globalMP = meteoPoints;
 					for(var i = 0; i < meteoPoints.length; i++){
 						var p = meteoPoints[i];
 						var color = generateColorHex(p[2]);
 						var icon = L.WindBarb.icon({
-									deg: p[3], 
-									speed: p[2],
-									strokeColorCircle: color,
-									strokeColorPath: color,
-									flagFillColor: color
-								});
+										deg: p[3], 
+										speed: p[2],
+										strokeColorCircle: color,
+										strokeColorPath: color,
+										flagFillColor: color
+									});
 						var marker = L.marker([p[0],p[1]], {icon: icon}).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
-																							  "<p>Wind Direction: "+p[3]+"</p>");  
+																				   "<p>Wind Direction: "+p[3]+"</p>");  
 						windbarb_arr.push(marker);
 					}
-					
 					windbarb = L.layerGroup(windbarb_arr);
-					
 					createMap(windbarb)
 				}
 				
 				function createMap(windbarb){
-					var map = L.map('map').setView([22.427532, 114.128723], 10);
-					
-					var basemaps = {
-						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
-							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-							subdomains: 'abcd',
-							ext: 'png'
-						})
-					};
-					
-					var overlays = {
+					overlays = {
 						"Windbarb": windbarb
 					};
 					
 					L.control.layers(basemaps, overlays).addTo(map);
 					basemaps.Basic.addTo(map);
+					
+					slider = L.control.slider(function(value) {
+									console.log(value);
+									
+								}, {
+								max: 200,
+								value: 5,
+								step:1,
+								size: '400px',
+								orientation:'vertical',
+								id: 'slider',
+								logo: 'W',
+								collapsed: false
+							}).addTo(map);
 				}
 		</script>
 	</body>
