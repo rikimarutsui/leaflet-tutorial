@@ -24,7 +24,8 @@ function readJSONFile($files, $path = './'){
 			'windSpd' => $json_s->windSpd_kt,
 			'windDir' => $json_s->windDir_deg,
 			'geometric_height' => $json_s->df17->geometric_height,
-			'createdAt' => $json_s->createdAt
+			'createdAt' => $json_s->createdAt,
+			'jsonFilename' => $file
 		));
 		$jsons = $jsons . $json . ',';
 	}
