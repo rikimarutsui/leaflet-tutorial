@@ -19,8 +19,8 @@
         options: {
         	fillColor: '#2B85C7',
             pointRadius: 8,
-			strokeColorCircle: '#0B6623',
-			strokeColorPath: '#ED2939',
+			strokeColorCircle: '#010101',
+			strokeColorPath: '#000000',
             strokeWidth: 2,
             strokeLength: 15,
             barbSpaceing: 5,
