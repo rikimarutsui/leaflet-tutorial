@@ -3,7 +3,9 @@
  Leaflet.WindBarbs, a wind barb plugin for Leaflet.
  This plugin enables the automatic creation of 
  wind barb icons in Leaflet.
- version: 0.0.5
+ version: 0.0.6
+ 
+ Modified by Rikimarutsui 
 */
 
 /*global L*/
@@ -21,6 +23,7 @@
             pointRadius: 8,
 			strokeColorCircle: '#010101',
 			strokeColorPath: '#000000',
+			flagFillColor: '#000000',
             strokeWidth: 2,
             strokeLength: 15,
             barbSpaceing: 5,
@@ -61,13 +64,14 @@
         },
         
         _createBarbs: function(speed) {
-            var s, b, bn, bw, bh, bs, sc, sw, sl, p, r, w, h, cx, cy, vb, xmlns, svg, g, fd;
+            var s, b, bn, bw, bh, bs, sc, sw, sl, ffc, p, r, w, h, cx, cy, vb, xmlns, svg, g, fd;
             s = speed,
             b = {5:0,10:0,50:0}
             bs = this.options.barbSpaceing,
             bh = this.options.barbHeight,
             r = this.options.pointRadius,
 			sc = this.options.strokeColorPath,
+			ffc = this.options.flagFillColor,
             sw = this.options.strokeWidth,
             sl = this.options.strokeLength,
             fd = this.options.forceDir,
@@ -248,7 +252,7 @@
                         var path = document.createElementNS (xmlns, "polygon");
                             path.setAttributeNS (null, 'stroke', sc);
                             path.setAttributeNS (null, 'stroke-width', sw);
-                            path.setAttributeNS (null, 'fill', "#000000");                                
+                            path.setAttributeNS (null, 'fill', ffc);                                
                             path.setAttributeNS (null, 'points', p1+' '+p2+' '+p3);
                         g.appendChild (path);
                         px -= 2*bs,
