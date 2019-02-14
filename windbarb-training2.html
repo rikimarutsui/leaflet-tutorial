@@ -29,7 +29,8 @@ strict.dtd">
 			/* Global Variables */
 				// Map Gloabl Variables
 				var url = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/readjson2.php';
-				var map = L.map('map').setView([22.427532, 114.128723], 10), overlays, globalMP = null, windLvSilder, windLvSilderCurrent, mapControl = null;
+				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
+						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays;
 				var basemaps = {
 						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -39,6 +40,7 @@ strict.dtd">
 
 				// Options of Generate Windbarb Colors
 				var startWindLv = 0, endWindLv = 200, windStep = 30;
+				var startHeight = 0, endHeight = 50000;
 				var windbarbLvColorSet = ['#ff0000', '#ff00ff', '#0000ff', '#00ffff'];
 				
 				// Options of Winbarb Plugin
@@ -69,7 +71,6 @@ strict.dtd">
 							runMeteoPoints(meteoPoints);
 						});
 					}else{
-						
 						runMeteoPoints(globalMP);
 					}
 				}
@@ -80,7 +81,7 @@ strict.dtd">
 					globalMP = meteoPoints;
 					for(var i = 0; i < meteoPoints.length; i++){
 						var p = meteoPoints[i];
-						if(p[2] < windLvCurrent){continue;}
+						if(p[2] < windLvCurrent || p[4] < geoHeightCurrent){continue;}
 						var color = generateColorHex(p[2]);
 						var icon = L.WindBarb.icon({
 										deg: p[3], 
@@ -120,20 +121,36 @@ strict.dtd">
 				
 				function initialize(){
 				/** Create Sliders **/
+					// create geoHeightSlider
+					geoHeightSlider = L.control.slider(function(value) {
+									geoHeightCurrent = value;
+									callJSON();
+								}, {
+								max: endHeight,
+								value: startHeight,
+								step:100,
+								size: '400px',
+								orientation:'horizontal',
+								position: 'bottomright',
+								id: 'geoHeightSlider',
+								logo: 'H',
+								//collapsed: false
+							}).addTo(map);
+							
 					// create windLvSlider
 					windLvSlider = L.control.slider(function(value) {
 									windLvCurrent = value;
 									callJSON();
 								}, {
 								max: endWindLv,
-								value: 0,
+								value: startWindLv,
 								step:1,
 								size: '400px',
 								orientation:'vertical',
 								position: 'bottomright',
 								id: 'windLvSlider',
 								logo: 'W',
-								collapsed: false
+								//collapsed: false
 							}).addTo(map);
 				}
 				
