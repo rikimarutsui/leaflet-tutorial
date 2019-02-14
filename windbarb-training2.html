@@ -29,7 +29,7 @@ strict.dtd">
 			/* Global Variables */
 				// Map Gloabl Variables
 				var url = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/readjson2.php';
-				var map = L.map('map').setView([22.427532, 114.128723], 10), overlays, silder, globalMP;
+				var map = L.map('map').setView([22.427532, 114.128723], 10), overlays, globalMP = null, windLvSilder, windLvSilderCurrent, mapControl = null;
 				var basemaps = {
 						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -58,14 +58,21 @@ strict.dtd">
 		
 		<script type="text/javascript">		
 			/* Get Json Files */
-				$.getJSON(url, function(data){
-					var meteoPoints = [];
-					data.forEach(function(element){
-						var tmp_arr = [element.Lat, element.Lng, element.windSpd, element.windDir, element.geometric_height, element.jsonFilename];
-						meteoPoints.push(tmp_arr);
-					});
-					runMeteoPoints(meteoPoints);
-				});
+				function callJSON(){
+					if (globalMP == null){
+						$.getJSON(url, function(data){
+							var meteoPoints = [];
+							data.forEach(function(element){
+								var tmp_arr = [element.Lat, element.Lng, element.windSpd, element.windDir, element.geometric_height, element.jsonFilename];
+								meteoPoints.push(tmp_arr);
+							});
+							runMeteoPoints(meteoPoints);
+						});
+					}else{
+						
+						runMeteoPoints(globalMP);
+					}
+				}
 			
 			/* Calculate and Display the MeteoPoints of Windbarb */
 				function runMeteoPoints(meteoPoints){
@@ -73,10 +80,13 @@ strict.dtd">
 					globalMP = meteoPoints;
 					for(var i = 0; i < meteoPoints.length; i++){
 						var p = meteoPoints[i];
+						if(p[2] < windLvCurrent){continue;}
 						var color = generateColorHex(p[2]);
 						var icon = L.WindBarb.icon({
 										deg: p[3], 
 										speed: p[2],
+										fillColor: color,
+										pointRadius: 4,
 										strokeColorCircle: color,
 										strokeColorPath: color,
 										flagFillColor: color
@@ -88,31 +98,46 @@ strict.dtd">
 						windbarb_arr.push(marker);
 					}
 					windbarb = L.layerGroup(windbarb_arr);
-					createMap(windbarb)
-				}
-				
-				function createMap(windbarb){
+					
 					overlays = {
 						"Windbarb": windbarb
 					};
+					deployMap()
+				}
+				
+				function deployMap(){
+					if(mapControl != null){
+						map.eachLayer(function (layer) {
+							map.removeLayer(layer);
+						});
+						mapControl.remove(map);
+					}
+						mapControl = L.control.layers(basemaps, overlays).addTo(map);
+						basemaps.Basic.addTo(map);
+						overlays.Windbarb.addTo(map);
 					
-					L.control.layers(basemaps, overlays).addTo(map);
-					basemaps.Basic.addTo(map);
-					
-					slider = L.control.slider(function(value) {
-									console.log(value);
-									
+				}
+				
+				function initialize(){
+				/** Create Sliders **/
+					// create windLvSlider
+					windLvSlider = L.control.slider(function(value) {
+									windLvCurrent = value;
+									callJSON();
 								}, {
-								max: 200,
-								value: 5,
+								max: endWindLv,
+								value: 0,
 								step:1,
 								size: '400px',
 								orientation:'vertical',
-								id: 'slider',
+								position: 'bottomright',
+								id: 'windLvSlider',
 								logo: 'W',
 								collapsed: false
 							}).addTo(map);
 				}
+				
+				initialize();
 		</script>
 	</body>
 </html>
