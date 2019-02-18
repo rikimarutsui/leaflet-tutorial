@@ -62,7 +62,6 @@ strict.dtd">
 		<script type="text/javascript">		
 			/* Get Json Files */
 				function callJSON(){
-					if (globalMP == null){
 						$.getJSON(url, function(data){
 							if(data == {}) runMeteoPoints(globalMP);
 							else{
@@ -76,9 +75,6 @@ strict.dtd">
 								runMeteoPoints(meteoPoints);
 							}
 						});
-					}else{
-						runMeteoPoints(globalMP);
-					}
 				}
 			
 			/* Calculate and Display the MeteoPoints of Windbarb */
@@ -114,12 +110,10 @@ strict.dtd">
 				function deployMap(){
 					if(map.hasLayer(overlays.Previous)){
 						map.removeLayer(overlays.Previous);
-						console.log(overlays.Previous);
 					}
 					basemaps.Basic.addTo(map);
 					overlays.Windbarb.addTo(map);
 					overlays.Previous = overlays.Windbarb;
-					console.log(overlays.Previous);
 				}
 				
 				function initialize(){
@@ -155,6 +149,11 @@ strict.dtd">
 								logo: 'WIND',
 								//collapsed: false
 							}).addTo(map);
+							
+					setTimeout(function() {
+						callJSON();
+						console.log("Refreshing...");
+					}, 5000);
 				}
 				
 				initialize();
