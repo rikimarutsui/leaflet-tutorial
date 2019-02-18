@@ -28,16 +28,17 @@ strict.dtd">
 		<script type="text/javascript">
 			/* Global Variables */
 				// Map Gloabl Variables
-				var url = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/readjson2.php';
+				//var url = 'http://10.53.140.111:5000/minutes';
+				var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
 				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
-						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays;
+						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays = {};
 				var basemaps = {
 						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 							subdomains: 'abcd',
 							ext: 'png'
 						})};
-
+						
 				// Options of Generate Windbarb Colors
 				var startWindLv = 0, endWindLv = 200, windStep = 20;
 				var startHeight = 0, endHeight = 50000;
@@ -63,12 +64,17 @@ strict.dtd">
 				function callJSON(){
 					if (globalMP == null){
 						$.getJSON(url, function(data){
-							var meteoPoints = [];
-							data.forEach(function(element){
-								var tmp_arr = [element.Lat, element.Lng, element.windSpd, element.windDir, element.geometric_height, element.jsonFilename];
-								meteoPoints.push(tmp_arr);
-							});
-							runMeteoPoints(meteoPoints);
+							if(data == {}) runMeteoPoints(globalMP);
+							else{
+								var meteoPoints = [];
+								Object.entries(data).forEach(([key, val]) => {
+									data[key].forEach(function(element){
+										var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
+										meteoPoints.push(tmp_arr);
+									});
+								});
+								runMeteoPoints(meteoPoints);
+							}
 						});
 					}else{
 						runMeteoPoints(globalMP);
@@ -100,23 +106,20 @@ strict.dtd">
 					}
 					windbarb = L.layerGroup(windbarb_arr);
 					
-					overlays = {
-						"Windbarb": windbarb
-					};
-					deployMap()
+					overlays.Windbarb = windbarb;
+					
+					deployMap();
 				}
 				
 				function deployMap(){
-					if(mapControl != null){
-						map.eachLayer(function (layer) {
-							map.removeLayer(layer);
-						});
-						mapControl.remove(map);
+					if(map.hasLayer(overlays.Previous)){
+						map.removeLayer(overlays.Previous);
+						console.log(overlays.Previous);
 					}
-						mapControl = L.control.layers(basemaps, overlays).addTo(map);
-						basemaps.Basic.addTo(map);
-						overlays.Windbarb.addTo(map);
-					
+					basemaps.Basic.addTo(map);
+					overlays.Windbarb.addTo(map);
+					overlays.Previous = overlays.Windbarb;
+					console.log(overlays.Previous);
 				}
 				
 				function initialize(){
