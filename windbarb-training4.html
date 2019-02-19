@@ -4,7 +4,9 @@ strict.dtd">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<link rel="stylesheet" href="leaflet/leaflet.css"/>
-		<link rel="stylesheet" href="leaflet/leaflet-slider.css"/>
+		<link rel="stylesheet" href="leaflet/assets/base.css"/>
+		<link rel="stylesheet" href="leaflet/assets/prism.css"/>
+		<link rel="stylesheet" href="leaflet/distribute/nouislider.css"/>
 		<!-- Make sure you put this AFTER Leaflet's CSS -->
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> 
 		<script type="text/javascript" src="otherjs/gradientColor.js"></script>
@@ -24,12 +26,14 @@ strict.dtd">
 		<div id="map"></div>
 		<script type="text/javascript" src="leaflet/leaflet.js"></script>
 		<script type="text/javascript" src="leaflet/leaflet-windbarb.js"></script>
-		<script src="leaflet/leaflet-slider.js"></script>
+		<script src="leaflet/distribute/nouislider.js"></script>
+		<script src="leaflet/assets/wNumb.js"></script>
+		<script src="leaflet/assets/prism.js"></script>
 		<script type="text/javascript">
 			/* Global Variables */
 				// Map Gloabl Variables
-				var url = 'http://10.53.140.111:5000/minutes';
-				//var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
+				//var url = 'http://10.53.140.111:5000/minutes';
+				var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
 				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
 						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays = {};
 				var basemaps = {
@@ -111,9 +115,7 @@ strict.dtd">
 						windbarb_arr.push(marker);
 					}
 					windbarb = L.layerGroup(windbarb_arr);
-					
 					overlays.Windbarb = windbarb;
-					
 					deployMap();
 				}
 				
@@ -127,6 +129,7 @@ strict.dtd">
 				}
 				
 				function threading(){
+				/** Multithreading **/
 					setTimeout(function() {
 						callJSON();
 						console.log("Refreshing...");
@@ -135,39 +138,9 @@ strict.dtd">
 				}
 				
 				function initialize(){
-				/** Create Sliders **/
-					// create geoHeightSlider
-					geoHeightSlider = L.control.slider(function(value) {
-									geoHeightCurrent = value;
-									callJSON();
-								}, {
-								max: endHeight,
-								value: startHeight,
-								step:100,
-								size: '400px',
-								orientation:'horizontal',
-								position: 'bottomright',
-								id: 'geoHeightSlider',
-								logo: 'HEIGHT',
-								collapsed: false
-							}).addTo(map);
-							
-					// create windLvSlider
-					windLvSlider = L.control.slider(function(value) {
-									windLvCurrent = value;
-									callJSON();
-								}, {
-								max: endWindLv,
-								value: startWindLv,
-								step:1,
-								size: '400px',
-								orientation:'vertical',
-								position: 'bottomright',
-								id: 'windLvSlider',
-								logo: 'WIND',
-								collapsed: false
-							}).addTo(map);
-							
+					var windLvSliderContainer = L.DomUtil.create('div', 'windLvSlider', this._container);
+					
+					
 					threading();
 				}
 				

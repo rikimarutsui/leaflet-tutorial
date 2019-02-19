@@ -1,0 +1,76 @@
+<link rel="stylesheet" href="assets/base.css"/>
+<link rel="stylesheet" href="assets/prism.css"/>
+<link rel="stylesheet" href="distribute/nouislider.css"/>
+
+<script src="distribute/nouislider.js"></script>
+<script src="assets/wNumb.js"></script>
+<script src="assets/prism.js"></script>
+<div id="range"></div>
+<script>
+var range = document.getElementById('range');
+
+noUiSlider.create(range, {
+
+    range: {
+        'min': 1300,
+        'max': 3250
+    },
+
+    step: 150,
+
+    // Handles start at ...
+    start: [1450, 2050, 2350, 3000],
+
+    // ... must be at least 300 apart
+    margin: 300,
+
+    // ... but no more than 600
+    limit: 600,
+
+    // Display colored bars between handles
+    connect: true,
+
+    // Put '0' at the bottom of the slider
+    direction: 'rtl',
+    orientation: 'vertical',
+
+    // Move handle on tap, bars are draggable
+    behaviour: 'tap-drag',
+    tooltips: true,
+    format: wNumb({
+        decimals: 0
+    }),
+
+    // Show a scale with the slider
+    pips: {
+        mode: 'steps',
+        stepped: true,
+        density: 4
+    }
+});
+
+// Give the slider dimensions
+range.style.height = '400px';
+range.style.margin = '0 auto 30px';
+
+var valuesDivs = [
+    document.getElementById('range-value-1'),
+    document.getElementById('range-value-2'),
+    document.getElementById('range-value-3'),
+    document.getElementById('range-value-4')
+];
+
+var diffDivs = [
+    document.getElementById('range-diff-1'),
+    document.getElementById('range-diff-2'),
+    document.getElementById('range-diff-3')
+];
+
+// When the slider value changes, update the input and span
+range.noUiSlider.on('update', function (values, handle) {
+    valuesDivs[handle].innerHTML = values[handle];
+    diffDivs[0].innerHTML = values[1] - values[0];
+    diffDivs[1].innerHTML = values[2] - values[1];
+    diffDivs[2].innerHTML = values[3] - values[2];
+});
+</script>
