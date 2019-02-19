@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Stict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-
+strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang = "en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<link rel="stylesheet" href="leaflet/leaflet.css"/>
+		<link rel="stylesheet" href="leaflet/leaflet-slider.css"/>
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> 
+		<script type="text/javascript" src="otherjs/gradientColor.js"></script>
+		<style>
+			body {
+				padding: 0;
+				margin: 0;
+			}
+			html, body, #map {
+				height: 100%;
+				width: 100%;
+			}
+    </style>
+	</head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<body>
+		<div id="map"></div>
+		<script type="text/javascript" src="leaflet/leaflet.js"></script>
+		<script type="text/javascript" src="leaflet/leaflet-windbarb.js"></script>
+		<script src="leaflet/leaflet-slider.js"></script>
+		<script type="text/javascript">
+			/* Global Variables */
+				// Map Gloabl Variables
+				var url = 'http://10.53.140.111:5000/minutes';
+				//var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
+				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
+						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays = {};
+				var basemaps = {
+						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+							subdomains: 'abcd',
+							ext: 'png'
+						})};
+						
+				// Options of Generate Windbarb Colors
+				var startWindLv = 0, endWindLv = 200, windStep = 20;
+				var startHeight = 0, endHeight = 50000;
+				var windbarbLvColorSet = ['#ff0000', '#ff7f00', '#ffff00', '#ff00ff', '#0000ff', '#00ffff', '#00ff00'];
+										  // Red	,  Orange ,	 Yellow  ,   Purple ,  Blue    ,   Cyan   ,   Green
+				// Options of Winbarb Plugin
+			
+			/* Set Up Gradient Color Set */
+				var colorSet = generateColorWithManyColor(windbarbLvColorSet, windStep).reverse();
+				
+				function generateColorHex(windLv){
+					var border = Math.round((endWindLv - startWindLv) / colorSet.length * 10) / 10;
+					var index = 0;
+					if(windLv < border) index = 0;
+					else if (windLv > colorSet.length) index = colorSet.length - 1;
+					else index = Math.round(windLv / border) - 1;
+					return "#" + colorSet[index];
+				}
+				
+				function isEmpty(obj) {
+					for(var key in obj) {
+						if(obj.hasOwnProperty(key))
+							return false;
+					}
+					return true;
+				}
+		</script>
+		
+		<script type="text/javascript">		
+			/* Get Json Files */
+				function callJSON(){
+						$.getJSON(url, function(data){
+							if(isEmpty(data)){ runMeteoPoints(globalMP); console.log(data);}
+							else{
+								var meteoPoints = [];
+								Object.entries(data).forEach(([key, val]) => {
+									data[key].forEach(function(element){
+										var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
+										meteoPoints.push(tmp_arr);
+									});
+								});
+								runMeteoPoints(meteoPoints);
+							}
+						});
+				}
+			
+			/* Calculate and Display the MeteoPoints of Windbarb */
+				function runMeteoPoints(meteoPoints){
+					var windbarb_arr = [], windbarb;
+					globalMP = meteoPoints;
+					for(var i = 0; i < meteoPoints.length; i++){
+						var p = meteoPoints[i];
+						if(p[2] < windLvCurrent || p[4] < geoHeightCurrent){continue;}
+						var color = generateColorHex(p[2]);
+						var icon = L.WindBarb.icon({
+										deg: p[3], 
+										speed: p[2],
+										fillColor: color,
+										pointRadius: 4,
+										strokeColorCircle: color,
+										strokeColorPath: color,
+										flagFillColor: color
+									});
+						var marker = L.marker([p[0],p[1]], {icon: icon}).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
+																				   "<p>Wind Direction: "+p[3]+"</p>"+
+																				   "<p>Wind Geoheight: "+p[4]+"</p>"+
+																				   "<p>Tid:"+p[5]+"</p>"+
+																				   "<p>Key:"+p[6]+"</p>"+
+																				   "<p>Time:"+p[7]+"</p>");  
+						windbarb_arr.push(marker);
+					}
+					windbarb = L.layerGroup(windbarb_arr);
+					
+					overlays.Windbarb = windbarb;
+					
+					deployMap();
+				}
+				
+				function deployMap(){
+					if(map.hasLayer(overlays.Previous)){
+						map.removeLayer(overlays.Previous);
+					}
+					basemaps.Basic.addTo(map);
+					overlays.Windbarb.addTo(map);
+					overlays.Previous = overlays.Windbarb;
+				}
+				
+				function threading(){
+					setTimeout(function() {
+						callJSON();
+						console.log("Refreshing...");
+						threading();
+					}, 3000);
+				}
+				
+				function initialize(){
+				/** Create Sliders **/
+					// create geoHeightSlider
+					geoHeightSlider = L.control.slider(function(value) {
+									geoHeightCurrent = value;
+									callJSON();
+								}, {
+								max: endHeight,
+								value: startHeight,
+								step:100,
+								size: '400px',
+								orientation:'horizontal',
+								position: 'bottomright',
+								id: 'geoHeightSlider',
+								logo: 'HEIGHT',
+								collapsed: false
+							}).addTo(map);
+							
+					// create windLvSlider
+					windLvSlider = L.control.slider(function(value) {
+									windLvCurrent = value;
+									callJSON();
+								}, {
+								max: endWindLv,
+								value: startWindLv,
+								step:1,
+								size: '400px',
+								orientation:'vertical',
+								position: 'bottomright',
+								id: 'windLvSlider',
+								logo: 'WIND',
+								collapsed: false
+							}).addTo(map);
+							
+					threading();
+				}
+				
+				initialize();
+		</script>
+	</body>
+</html>
