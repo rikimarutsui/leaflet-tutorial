@@ -28,8 +28,8 @@ strict.dtd">
 		<script type="text/javascript">
 			/* Global Variables */
 				// Map Gloabl Variables
-				//var url = 'http://10.53.140.111:5000/minutes';
-				var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
+				var url = 'http://10.53.140.111:5000/minutes';
+				//var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
 				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
 						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays = {};
 				var basemaps = {
@@ -57,13 +57,21 @@ strict.dtd">
 					else index = Math.round(windLv / border) - 1;
 					return "#" + colorSet[index];
 				}
+				
+				function isEmpty(obj) {
+					for(var key in obj) {
+						if(obj.hasOwnProperty(key))
+							return false;
+					}
+					return true;
+				}
 		</script>
 		
 		<script type="text/javascript">		
 			/* Get Json Files */
 				function callJSON(){
 						$.getJSON(url, function(data){
-							if(data == {}) runMeteoPoints(globalMP);
+							if(isEmpty(data)){ runMeteoPoints(globalMP); console.log(data);}
 							else{
 								var meteoPoints = [];
 								Object.entries(data).forEach(([key, val]) => {
@@ -97,7 +105,9 @@ strict.dtd">
 						var marker = L.marker([p[0],p[1]], {icon: icon}).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
 																				   "<p>Wind Direction: "+p[3]+"</p>"+
 																				   "<p>Wind Geoheight: "+p[4]+"</p>"+
-																				   "<p>JSON Filename:"+p[5]+"</p>");  
+																				   "<p>Tid:"+p[5]+"</p>"+
+																				   "<p>Key:"+p[6]+"</p>"+
+																				   "<p>Time:"+p[7]+"</p>");  
 						windbarb_arr.push(marker);
 					}
 					windbarb = L.layerGroup(windbarb_arr);
@@ -114,6 +124,14 @@ strict.dtd">
 					basemaps.Basic.addTo(map);
 					overlays.Windbarb.addTo(map);
 					overlays.Previous = overlays.Windbarb;
+				}
+				
+				function threading(){
+					setTimeout(function() {
+						callJSON();
+						console.log("Refreshing...");
+						threading();
+					}, 3000);
 				}
 				
 				function initialize(){
@@ -150,10 +168,7 @@ strict.dtd">
 								//collapsed: false
 							}).addTo(map);
 							
-					setTimeout(function() {
-						callJSON();
-						console.log("Refreshing...");
-					}, 5000);
+					threading();
 				}
 				
 				initialize();
