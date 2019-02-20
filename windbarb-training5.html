@@ -138,16 +138,8 @@ strict.dtd">
 				}
 				
 				function initialize(){
-					var windLvClassName = 'windLvSlider', geoHeightClassName = 'geoHeightSlider';
+					var windLvSliderContainer = L.DomUtil.create('div', 'windLvSlider', this._container);
 					
-					var windLvContainer = L.DomUtil.create('div', windLvClassName + ' ' + windLvClassName + '-' + 'horizontal');
-					var windLvSliderLink = L.DomUtil.create('a', windLvClassName + '-toggle', windLvContainer);
-					windLvSliderLink.setAttribute("title", windLvClassName);
-
-					
-					var geoHeightContainer = L.DomUtil.create('div', geoHeightClassName + ' ' + geoHeightClassName + '-' + 'vertical');
-					var geoHeightSliderLink = L.DomUtil.create('a', geoHeightClassName + '-toggle', geoHeightContainer);
-					geoHeightSliderLink.setAttribute("title", geoHeightClassName);
 					
 					threading();
 				}

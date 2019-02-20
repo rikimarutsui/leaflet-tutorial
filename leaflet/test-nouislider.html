@@ -1,3 +1,5 @@
+<html>
+<head>
 <link rel="stylesheet" href="assets/base.css"/>
 <link rel="stylesheet" href="assets/prism.css"/>
 <link rel="stylesheet" href="distribute/nouislider.css"/>
@@ -5,12 +7,11 @@
 <script src="distribute/nouislider.js"></script>
 <script src="assets/wNumb.js"></script>
 <script src="assets/prism.js"></script>
+</head>
+<body>
+<p></p><p></p>
 <div id="range"></div>
 <div style="text-align: center; font-size: 12px;">
-	<span id="range-value-4">2950</span> -
-	<span id="range-diff-3" style="color: blue">600</span> -
-	<span id="range-value-3">2350</span> -
-	<span id="range-diff-2" style="color: blue">300</span> -
 	<span id="range-value-2">2050</span> -
 	<span id="range-diff-1" style="color: blue">600</span> -
 	<span id="range-value-1">1450</span>
@@ -29,13 +30,13 @@ noUiSlider.create(range, {
     step: 150,
 
     // Handles start at ...
-    start: [1450, 2050, 2350, 3000],
+    start: [1450, 3000],
 
     // ... must be at least 300 apart
     margin: 300,
 
     // ... but no more than 600
-    limit: 600,
+    //limit: 1300,
 
     // Display colored bars between handles
     connect: true,
@@ -55,7 +56,7 @@ noUiSlider.create(range, {
     pips: {
         mode: 'steps',
         stepped: true,
-        density: 4
+        density: 2
     }
 });
 
@@ -65,22 +66,18 @@ range.style.margin = '0 auto 30px';
 
 var valuesDivs = [
     document.getElementById('range-value-1'),
-    document.getElementById('range-value-2'),
-    document.getElementById('range-value-3'),
-    document.getElementById('range-value-4')
+    document.getElementById('range-value-2')
 ];
 
 var diffDivs = [
-    document.getElementById('range-diff-1'),
-    document.getElementById('range-diff-2'),
-    document.getElementById('range-diff-3')
+    document.getElementById('range-diff-1')
 ];
 
 // When the slider value changes, update the input and span
 range.noUiSlider.on('update', function (values, handle) {
     valuesDivs[handle].innerHTML = values[handle];
     diffDivs[0].innerHTML = values[1] - values[0];
-    diffDivs[1].innerHTML = values[2] - values[1];
-    diffDivs[2].innerHTML = values[3] - values[2];
 });
 </script>
+</body>
+</html>
