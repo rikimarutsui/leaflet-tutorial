@@ -15,6 +15,8 @@ L.Control.RangeNoUISlider = L.Control.extend({
 		direction: 'rtl',	 // Put '0' at the bottom of the slider
 		orientation: 'vertical',
 		id: 'slider',
+		styleHeight: '400px',
+		styleMargin: '0 auto 30px',
 		
 		/* Move handle on tap, bars are draggable */
 		behaviour: 'tap-drag',
@@ -33,11 +35,9 @@ L.Control.RangeNoUISlider = L.Control.extend({
 			stepped: true,
 			density: 2
 		},
-		
 		getValue: function(minValue, maxValue){
 			return {"minValue": minValue, "maxValue": maxValue};
 		}
-		
 	},
 	
 	initialize: function(f, options) {
@@ -60,11 +60,39 @@ L.Control.RangeNoUISlider = L.Control.extend({
 	},
 	
 	onAdd: function(map) {
-		var controlElement = L.DomUtil.create('div', this.options.id + ' ' + this.options.id + '-' + this.options.orientation);
 		
-		// Continue implementing the control here.
-
+		// Initialize Layout
+		var controlElement = L.DomUtil.create('div', this.options.id + '-' + this.options.orientation);
+		controlElement.setAttribute("id", this.options.id);
+		
+		// Create nouislider
 		/*var divObj = document.getElementById(divId);
+		noUiSlider.create(divObj, {
+			position	:	this.options.position,
+			step		: 	this.options.step,
+			start		: 	this.options.start,
+			margin		: 	this.options.margin,
+			limit		: 	this.options.limlt,
+			minValue	:	this.options.minValue,
+			maxValue	:	this.options.maxValue,
+			connect		: 	this.options.connect,
+			direction	: 	this.options.direction,
+			orientation	:	this.options.orientation,
+			id			:	this.options.id,
+			behaviour	: 	this.options.behaviour,
+			tooltips	:	this.options.tooltips,
+			range		: 	this.options.range,
+			format		:	this.options.format,
+			pips		:	this.options.pips
+		});
+		
+		divObj.style.height = this.options.styleHeight;
+		divObj.style.margin = this.options.styleMargin;
+		
+		// Update Value
+		divObj.noUiSlider.on('update', function (values, handle) {
+			this.update(values[0], values[1]);
+		});*/
 		return controlElement;
 	},
 	

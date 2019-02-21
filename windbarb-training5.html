@@ -29,13 +29,14 @@ strict.dtd">
 		<script src="leaflet/distribute/nouislider.js"></script>
 		<script src="leaflet/assets/wNumb.js"></script>
 		<script src="leaflet/assets/prism.js"></script>
+		<script src="leaflet/leaflet-Range-nouislider.js"></script>
 		<script type="text/javascript">
 			/* Global Variables */
 				// Map Gloabl Variables
 				var url = 'http://10.53.140.111:5000/minutes';
 				//var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
 				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
-						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays = {};
+						  windLvSilder, windLvSilderNoUI, windLvCurrent, geoHeightSlider, geoHeightSliderNoUI, geoHeightCurrent, overlays = {};
 				var basemaps = {
 						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -80,8 +81,12 @@ strict.dtd">
 								var meteoPoints = [];
 								Object.entries(data).forEach(([key, val]) => {
 									data[key].forEach(function(element){
-										var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
-										meteoPoints.push(tmp_arr);
+										/** Frontend prevent null datas if it is for displaying **/
+										if(element.lat != null && element.lat != '' && element.lon != null && element.lon != '' && 
+										   element.windSpd_kt != null && element.windSpd_kt != '' && element.height != null && element.height != ''){
+											var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
+											meteoPoints.push(tmp_arr);
+										}
 									});
 								});
 								runMeteoPoints(meteoPoints);
@@ -128,6 +133,27 @@ strict.dtd">
 					overlays.Previous = overlays.Windbarb;
 				}
 				
+				function noUISilder(){
+					windLvSilderNoUI = noUiSlider.create(divObj, {
+						position	:	windLvSilder.options.position,
+						step		: 	windLvSilder.options.step,
+						start		: 	windLvSilder.options.start,
+						margin		: 	windLvSilder.options.margin,
+						limit		: 	windLvSilder.options.limlt,
+						minValue	:	windLvSilder.options.minValue,
+						maxValue	:	windLvSilder.options.maxValue,
+						connect		: 	windLvSilder.options.connect,
+						direction	: 	windLvSilder.options.direction,
+						orientation	:	windLvSilder.options.orientation,
+						id			:	windLvSilder.options.id,
+						behaviour	: 	windLvSilder.options.behaviour,
+						tooltips	:	windLvSilder.options.tooltips,
+						range		: 	windLvSilder.options.range,
+						format		:	windLvSilder.options.format,
+						pips		:	windLvSilder.options.pips
+					});
+				}
+				
 				function threading(){
 				/** Multithreading **/
 					setTimeout(function() {
@@ -138,13 +164,34 @@ strict.dtd">
 				}
 				
 				function initialize(){
-					var windLvSliderContainer = L.DomUtil.create('div', 'windLvSlider', this._container);
-					
-					
-					threading();
+				/** Create Sliders **/
+					// create geoHeightSlider
+					windLvSilder = new L.Control.RangeNoUISlider(function(value) {
+						
+					}, {
+						position: 'topright',
+						step: 1,
+						start: [startWindLv, endWindLv],
+						margin: 1,
+						limit: endWindLv - startWindLv,
+						minValue: startWindLv,
+						maxValue: endWindLv,
+						orientation: 'horizontal',
+						id: 'windLvSilder',
+						styleHeight: '300px',
+						range: {
+							'min' : startWindLv,
+							'max' : endWindLv
+						}
+					}).addTo(map);
 				}
 				
 				initialize();
+				
+				var divObj = document.getElementById('windLvSilder');
+				
+				noUISilder(divObj);
+				threading();
 		</script>
 	</body>
 </html>
