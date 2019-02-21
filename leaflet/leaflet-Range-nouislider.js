@@ -64,6 +64,7 @@ L.Control.RangeNoUISlider = L.Control.extend({
 		
 		// Continue implementing the control here.
 
+		/*var divObj = document.getElementById(divId);
 		return controlElement;
 	},
 	

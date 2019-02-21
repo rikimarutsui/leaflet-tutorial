@@ -28,8 +28,8 @@ strict.dtd">
 		<script type="text/javascript">
 			/* Global Variables */
 				// Map Gloabl Variables
-				var url = 'http://10.53.140.111:5000/minutes';
-				//var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
+				//var url = 'http://10.53.140.111:5000/minutes';
+				var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
 				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
 						  windLvSilder, windLvCurrent, geoHeightSlider, geoHeightCurrent, overlays = {};
 				var basemaps = {
@@ -76,8 +76,12 @@ strict.dtd">
 								var meteoPoints = [];
 								Object.entries(data).forEach(([key, val]) => {
 									data[key].forEach(function(element){
-										var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
-										meteoPoints.push(tmp_arr);
+										/** Frontend prevent null datas if it is for displaying **/
+										if(element.lat != null && element.lat != '' && element.lon != null && element.lon != '' && 
+										   element.windSpd_kt != null && element.windSpd_kt != '' && element.height != null && element.height != ''){
+											var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
+											meteoPoints.push(tmp_arr);
+										}
 									});
 								});
 								runMeteoPoints(meteoPoints);

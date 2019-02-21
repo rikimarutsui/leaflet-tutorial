@@ -87,7 +87,7 @@ strict.dtd">
 										deg: p[3], 
 										speed: p[2],
 										fillColor: color,
-										pointRadius: 4,
+										pointRadius: 0,
 										strokeColorCircle: color,
 										strokeColorPath: color,
 										flagFillColor: color
@@ -95,7 +95,7 @@ strict.dtd">
 						var marker = L.marker([p[0],p[1]], {icon: icon}).bindPopup("<p>Wind Speed: "+p[2]+"</p>"+
 																				   "<p>Wind Direction: "+p[3]+"</p>"+
 																				   "<p>Wind Geoheight: "+p[4]+"</p>"+
-																				   "<p>JSON Filename:"+p[5]+"</p>");  
+																				   "<p>JSON Filename: "+p[5]+"</p>");  
 						windbarb_arr.push(marker);
 					}
 					windbarb = L.layerGroup(windbarb_arr);
@@ -103,7 +103,7 @@ strict.dtd">
 					overlays = {
 						"Windbarb": windbarb
 					};
-					deployMap()
+					deployMap();
 				}
 				
 				function deployMap(){

@@ -80,8 +80,12 @@ strict.dtd">
 								var meteoPoints = [];
 								Object.entries(data).forEach(([key, val]) => {
 									data[key].forEach(function(element){
-										var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
-										meteoPoints.push(tmp_arr);
+										/** Frontend prevent null datas if it is for displaying **/
+										if(element.lat != null && element.lat != '' && element.lon != null && element.lon != '' && 
+										   element.windSpd_kt != null && element.windSpd_kt != '' && element.height != null && element.height != ''){
+											var tmp_arr = [element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time];
+											meteoPoints.push(tmp_arr);
+										}
 									});
 								});
 								runMeteoPoints(meteoPoints);
