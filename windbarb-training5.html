@@ -36,7 +36,7 @@ strict.dtd">
 				var url = 'http://10.53.140.111:5000/minutes';
 				//var url = 'http://localhost/leaflet-tutorial/leopard-b-vm.json';
 				var map = L.map('map').setView([22.427532, 114.128723], 10), globalMP = null, mapControl = null,
-						  windLvSilder, windLvSilderNoUI, windLvCurrent, geoHeightSlider, geoHeightSliderNoUI, geoHeightCurrent, overlays = {};
+						  windLvSilder, windLvSilderNoUI, geoHeightSlider, geoHeightSliderNoUI, overlays = {};
 				var basemaps = {
 						"Basic": L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 							attribution: 'Wind barbs by <a href="http://www.geonet.ch">GeoNET</a> &mdash; Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -45,11 +45,11 @@ strict.dtd">
 						})};
 						
 				// Options of Generate Windbarb Colors
-				var startWindLv = 0, endWindLv = 200, windStep = 20;
+				var startWindLv = 0, endWindLv = 200, windStep = 20 ;
 				var startHeight = 0, endHeight = 50000;
 				var windbarbLvColorSet = ['#ff0000', '#ff7f00', '#ffff00', '#ff00ff', '#0000ff', '#00ffff', '#00ff00'];
 										  // Red	,  Orange ,	 Yellow  ,   Purple ,  Blue    ,   Cyan   ,   Green
-				// Options of Winbarb Plugin
+				var windLvCurrentLow = startWindLv, windLvCurrentHigh = endWindLv, geoHeightCurrentLow = startHeight, geoHeightCurrentHigh = endHeight;
 			
 			/* Set Up Gradient Color Set */
 				var colorSet = generateColorWithManyColor(windbarbLvColorSet, windStep).reverse();
@@ -96,11 +96,14 @@ strict.dtd">
 			
 			/* Calculate and Display the MeteoPoints of Windbarb */
 				function runMeteoPoints(meteoPoints){
+					console.log("geoHeightCurrentLow: " + geoHeightCurrentLow);
+					console.log("geoHeightCurrentHigh: " + geoHeightCurrentHigh);
 					var windbarb_arr = [], windbarb;
 					globalMP = meteoPoints;
 					for(var i = 0; i < meteoPoints.length; i++){
 						var p = meteoPoints[i];
-						if(p[2] < windLvCurrent || p[4] < geoHeightCurrent){continue;}
+						if((p[2] < windLvCurrentLow || p[2] > windLvCurrentHigh)
+						|| (p[4] < geoHeightCurrentLow || p[4] > geoHeightCurrentHigh)){continue;}
 						var color = generateColorHex(p[2]);
 						var icon = L.WindBarb.icon({
 										deg: p[3], 
@@ -133,8 +136,9 @@ strict.dtd">
 					overlays.Previous = overlays.Windbarb;
 				}
 				
-				function noUISilder(){
-					windLvSilderNoUI = noUiSlider.create(divObj, {
+				function noUISilder(windLvDivObj, geoHeightDivObj){
+					// windLv Slider
+					windLvSilderNoUI = noUiSlider.create(windLvDivObj, {
 						position	:	windLvSilder.options.position,
 						step		: 	windLvSilder.options.step,
 						start		: 	windLvSilder.options.start,
@@ -152,6 +156,38 @@ strict.dtd">
 						format		:	windLvSilder.options.format,
 						pips		:	windLvSilder.options.pips
 					});
+					
+					windLvDivObj.noUiSlider.on('update', function (values, handle) {
+						windLvCurrentLow = values[0];
+						windLvCurrentHigh = values[1];
+						callJSON();
+					});
+					
+					// geoHeight Slider
+					geoHeightSilderNoUI = noUiSlider.create(geoHeightDivObj, {
+						position	:	geoHeightSlider.options.position,
+						step		: 	geoHeightSlider.options.step,
+						start		: 	geoHeightSlider.options.start,
+						margin		: 	geoHeightSlider.options.margin,
+						limit		: 	geoHeightSlider.options.limlt,
+						minValue	:	geoHeightSlider.options.minValue,
+						maxValue	:	geoHeightSlider.options.maxValue,
+						connect		: 	geoHeightSlider.options.connect,
+						direction	: 	geoHeightSlider.options.direction,
+						orientation	:	geoHeightSlider.options.orientation,
+						id			:	geoHeightSlider.options.id,
+						behaviour	: 	geoHeightSlider.options.behaviour,
+						tooltips	:	geoHeightSlider.options.tooltips,
+						range		: 	geoHeightSlider.options.range,
+						format		:	geoHeightSlider.options.format,
+						pips		:	geoHeightSlider.options.pips
+					});
+					
+					geoHeightDivObj.noUiSlider.on('update', function (values, handle) {
+						geoHeightCurrentLow = values[0];
+						geoHeightCurrentHigh = values[1];
+						callJSON();
+					});
 				}
 				
 				function threading(){
@@ -165,18 +201,16 @@ strict.dtd">
 				
 				function initialize(){
 				/** Create Sliders **/
-					// create geoHeightSlider
-					windLvSilder = new L.Control.RangeNoUISlider(function(value) {
-						
-					}, {
+					// create windLv Slider
+					windLvSilder = new L.Control.RangeNoUISlider({
 						position: 'topright',
-						step: 1,
+						step: 10,
 						start: [startWindLv, endWindLv],
-						margin: 1,
+						margin: 10,
 						limit: endWindLv - startWindLv,
 						minValue: startWindLv,
 						maxValue: endWindLv,
-						orientation: 'horizontal',
+						orientation: 'vertical',
 						id: 'windLvSilder',
 						styleHeight: '300px',
 						range: {
@@ -184,13 +218,33 @@ strict.dtd">
 							'max' : endWindLv
 						}
 					}).addTo(map);
+					
+					geoHeightSlider = new L.Control.RangeNoUISlider({
+						position: 'bottomright',
+						step: 1000,
+						start: [startHeight, endHeight],
+						margin: 1000,
+						limit: endHeight - startHeight,
+						minValue: startHeight,
+						maxValue: endHeight,
+						orientation: 'horizontal',
+						id: 'geoHeightSlider',
+						styleHeight: null,
+						styleWidth: '400px',
+						styleMargin: '20px 20px 40px',
+						range: {
+							'min' : startHeight,
+							'max' : endHeight
+						}
+					}).addTo(map);
 				}
 				
 				initialize();
 				
-				var divObj = document.getElementById('windLvSilder');
+				var windLvDivObj = document.getElementById('windLvSilder');
+				var geoHeightDivObj = document.getElementById('geoHeightSlider');
 				
-				noUISilder(divObj);
+				noUISilder(windLvDivObj, geoHeightDivObj);
 				threading();
 		</script>
 	</body>

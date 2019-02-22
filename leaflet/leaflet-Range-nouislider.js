@@ -1,8 +1,4 @@
 L.Control.RangeNoUISlider = L.Control.extend({
-	update: function(minValue, maxValue){
-		return {"minValue": minValue, "maxValue": maxValue};
-	},
-	
 	options: {
 		position: 'topright',
 		step: 150,
@@ -16,7 +12,8 @@ L.Control.RangeNoUISlider = L.Control.extend({
 		orientation: 'vertical',
 		id: 'slider',
 		styleHeight: '400px',
-		styleMargin: '0 auto 30px',
+		styleWidth: null,
+		styleMargin: '20px 70px 30px',
 		
 		/* Move handle on tap, bars are draggable */
 		behaviour: 'tap-drag',
@@ -40,15 +37,9 @@ L.Control.RangeNoUISlider = L.Control.extend({
 		}
 	},
 	
-	initialize: function(f, options) {
+	initialize: function(options) {
 		L.Util.setOptions(this, options);
 		
-		if(typeof f == "function") { this.update = f; }
-		else{ 
-			this.update = function(minValue, maxValue){ 
-				console.log("minValue : " + minValue + ", maxValue: " + maxValue); 
-			};	
-		}
 		if(typeof this.options.getValue != "function"){ 
 			this.options.getValue = function(minValue, maxValue){
 			return {"minValue": minValue, "maxValue": maxValue};
@@ -64,35 +55,9 @@ L.Control.RangeNoUISlider = L.Control.extend({
 		// Initialize Layout
 		var controlElement = L.DomUtil.create('div', this.options.id + '-' + this.options.orientation);
 		controlElement.setAttribute("id", this.options.id);
+		controlElement.setAttribute("style", 
+		"height: " + this.options.styleHeight + "; width: " + this.options.styleWidth + "; margin: " + this.options.styleMargin); 
 		
-		// Create nouislider
-		/*var divObj = document.getElementById(divId);
-		noUiSlider.create(divObj, {
-			position	:	this.options.position,
-			step		: 	this.options.step,
-			start		: 	this.options.start,
-			margin		: 	this.options.margin,
-			limit		: 	this.options.limlt,
-			minValue	:	this.options.minValue,
-			maxValue	:	this.options.maxValue,
-			connect		: 	this.options.connect,
-			direction	: 	this.options.direction,
-			orientation	:	this.options.orientation,
-			id			:	this.options.id,
-			behaviour	: 	this.options.behaviour,
-			tooltips	:	this.options.tooltips,
-			range		: 	this.options.range,
-			format		:	this.options.format,
-			pips		:	this.options.pips
-		});
-		
-		divObj.style.height = this.options.styleHeight;
-		divObj.style.margin = this.options.styleMargin;
-		
-		// Update Value
-		divObj.noUiSlider.on('update', function (values, handle) {
-			this.update(values[0], values[1]);
-		});*/
 		return controlElement;
 	},
 	
@@ -101,6 +66,6 @@ L.Control.RangeNoUISlider = L.Control.extend({
 	}
 });
 
-L.Control.rangenouislider = function(f, options) {
-	return new L.Control.RangeNoUISlider(f, options);
+L.Control.rangenouislider = function(options) {
+	return new L.Control.RangeNoUISlider(options);
 };
