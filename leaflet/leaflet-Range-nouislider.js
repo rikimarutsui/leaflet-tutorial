@@ -58,6 +58,8 @@ L.Control.RangeNoUISlider = L.Control.extend({
 		controlElement.setAttribute("style", 
 		"height: " + this.options.styleHeight + "; width: " + this.options.styleWidth + "; margin: " + this.options.styleMargin); 
 		
+		L.DomEvent.disableClickPropagation(controlElement);
+		
 		return controlElement;
 	},
 	
