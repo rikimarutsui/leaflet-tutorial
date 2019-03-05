@@ -124,6 +124,18 @@ strict.dtd">
 																				   "<p style='display=inline'>Tid: "+p[5]+"</p>"+
 																				   "<p style='display=inline'>Address: "+p[6]+"</p>"+
 																				   "<p style='display=inline'>Time: "+p[7]+"</p>");  
+						
+						var windbarbBlock = L.control.block('windbarbBlock', { position: 'topright' }).addTo(map);
+						  L.DomEvent.disableClickPropagation(windbarbBlock._container);
+						  
+						  
+						  
+						  
+						  
+						  var windbarbBlockContent = L.DomUtil.create('div','windbarb-content', windbarbBlock._container);
+						  windbarbBlockContent.innerHTML = "<div id='windbarbBlockContent'></div>";
+						  var windbarbContent = ;
+						
 						windbarb_arr.push(marker);
 					}
 					windbarb = L.layerGroup(windbarb_arr);
