@@ -1,6 +1,7 @@
 <script src="otherjs/highchart.js"></script>
 <script src="otherjs/highchart-windbarb.js"></script>
 <script src="otherjs/highchart-export.js"></script>
+<script src="create-windbarb.js"></script>
 <style>
 	#container {
     min-width: 300px;
@@ -65,19 +66,25 @@ Highcharts.chart('container', {
         }
     },
     series: [{
-        name: 'Female',
+        //name: 'Female',
         color: 'rgba(223, 83, 83, .5)',
         data: [['L1', 12000, 200], ['L2', 1000, 100], ['L3', 45000, 50], ['L1', 11300, 100], ['AZ', 8800, 60],
             ['LB', 5900, 209], ['LD', 12300, 10], ['L6', 25000, 99], ['L7', 8000, 88], ['L8', 48000, 40],
-            ['LF', 1230, 400], ['L5', 5405, 160]]
+            ['LF', 1230, 400], ['L5', 5405, 160]],
+		marker: {
+            symbol: 'url(https://www.highcharts.com/samples/graphics/sun.png)'
+        }
 
     }, {
-        name: 'Male',
+        //name: 'Male',
         color: 'rgba(119, 152, 191, .5)',
         data: [['L9', 6500], ['LA', 7180], ['LE', 8000], ['LE', 12900], ['L4', 27800],
             ['AZ', 41000], ['AZ', 48600], ['LD', 9000], ['L7', 32226], ['L8', 33300],
             ['L9', 7660], ['L8', 11100], ['L7', 29288], ['L6', 11746], ['L4', 7100],
-            ['L1', 49800], ['L2', 11938]]
+            ['L1', 49800]],
+		marker: {
+            symbol: createPoint(180, 20, false)
+        }
     }]
 });
 
