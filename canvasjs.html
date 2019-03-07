@@ -6,24 +6,26 @@
 <script>
 var chart = new CanvasJS.Chart("chartContainer",{  
 	title: {
-  	text: "Image as marker"
-  },
+		text: "Windbarb in Landing Path"
+	},
 	theme: "theme2",
-  animationEnabled: true,
-  data: [
-    {
-      type: "scatter",
-      markerType: "none",
-      dataPoints: [
-        { x: 10, y: 71, angle: 0, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
-        { x: 20, y: 55, angle: 45, markerImageUrl: "http://i.imgur.com/rx4VPtF.png", markerWidth: 30, markerHeight: 30 },
-        { x: 30, y: 50, angle: 90, markerImageUrl: "http://i.imgur.com/qrqIve0.png", markerWidth: 30, markerHeight: 30 },
-        { x: 40, y: 70, angle: 135, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
-		{ x: 45, y: 10, angle: 180, markerImageUrl: "./windbarb-img/5_n.png", markerWidth: 10, markerHeight: 22},
-		{ x: 48, y: 15, angle: 225, markerImageUrl: "./windbarb-img/200.png", markerWidth: 10, markerHeight: 22}
-      ]
-    }					
-  ]
+	animationEnabled: true,
+	axisX: {
+	},
+	data: [
+		{
+			type: "scatter",
+			markerType: "none",
+			dataPoints: [
+				{ x: 10, y: 71, angle: 0, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
+				{ x: 20, y: 55, angle: 45, markerImageUrl: "http://i.imgur.com/rx4VPtF.png", markerWidth: 30, markerHeight: 30 },
+				{ x: 30, y: 50, angle: 90, markerImageUrl: "http://i.imgur.com/qrqIve0.png", markerWidth: 30, markerHeight: 30 },
+				{ x: 40, y: 70, angle: 135, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
+				{ x: 45, y: 10, angle: 180, markerImageUrl: "./windbarb-img/5_n.png", markerWidth: 10, markerHeight: 22},
+				{ x: 48, y: 15, angle: 225, markerImageUrl: "./windbarb-img/200.png", markerWidth: 10, markerHeight: 22}
+			]
+		}					
+	]
 });
 
 chart.render();
