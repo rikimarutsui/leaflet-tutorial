@@ -1,0 +1,65 @@
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<br/><!-- Just so that JSFiddle's Result label doesn't overlap the Chart -->
+<div id="chartContainer" style="height: 360px; width: 100%;"></div>
+
+<script>
+var chart = new CanvasJS.Chart("chartContainer",{  
+	title: {
+  	text: "Image as marker"
+  },
+	theme: "theme2",
+  animationEnabled: true,
+  data: [
+    {
+      type: "scatter",
+      markerType: "none",
+      dataPoints: [
+        { x: 10, y: 71, angle: 0, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
+        { x: 20, y: 55, angle: 45, markerImageUrl: "http://i.imgur.com/rx4VPtF.png", markerWidth: 30, markerHeight: 30 },
+        { x: 30, y: 50, angle: 90, markerImageUrl: "http://i.imgur.com/qrqIve0.png", markerWidth: 30, markerHeight: 30 },
+        { x: 40, y: 70, angle: 135, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
+		{ x: 45, y: 10, angle: 180, markerImageUrl: "./windbarb-img/5_n.png", markerWidth: 10, markerHeight: 22},
+		{ x: 48, y: 15, angle: 225, markerImageUrl: "./windbarb-img/200.png", markerWidth: 10, markerHeight: 22}
+      ]
+    }					
+  ]
+});
+
+chart.render();
+
+var customMarkers= [];
+
+addMarkerImages(chart);
+
+function addMarkerImages(chart){
+  for(var i = 0; i < chart.data[0].dataPoints.length; i++){
+
+    customMarkers.push($("<img>").attr("src", chart.data[0].dataPoints[i].markerImageUrl)
+                       .css("display", "none")
+                       .css("height", chart.data[0].dataPoints[i].markerHeight)
+                       .css("width", chart.data[0].dataPoints[i].markerWidth)
+					   .css("transform", "rotate(" + chart.data[0].dataPoints[i].angle + "deg)")
+                       .appendTo($("#chartContainer>.canvasjs-chart-container"))
+                      );        
+    positionMarkerImage(customMarkers[i], i);
+  }    
+}
+
+function positionMarkerImage(customMarker, index){ 
+  var pixelX = chart.axisX[0].convertValueToPixel(chart.options.data[0].dataPoints[index].x);
+  var pixelY = chart.axisY[0].convertValueToPixel(chart.options.data[0].dataPoints[index].y);
+  
+  customMarker.css({"position": "absolute", 
+                    "display": "block",
+                    "top": pixelY - customMarker.height()/2,
+                    "left": pixelX - customMarker.width()/2
+                   });
+}
+
+$(window).resize(function() {
+  for(var i = 0; i < chart.data[0].dataPoints.length; i++){
+    positionMarkerImage(customMarkers[i], i);
+  }
+}); 
+</script>
