@@ -5,11 +5,13 @@
 <div id="chartContainer" style="height: 360px; width: 100%;"></div>
 
 <script>
-var globalMP, landingPathMap = createLandingPath(), customMarkers = [];
+var globalMP, landingPathMap = createLandingPath(), customMarkers = [], refreshTime = 5000;
 var url = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/windbarb-json/leopard-b-vm-all-landing.json';
-var chart;
+var chart = null;
+
 
 /* Refresh the Windbarb Data */
+function callWindbarbJSON(){
 	$.getJSON(url, function(data){
 		if(isEmpty(data)){ createChart(globalMP); console.log(data);}
 		else{
@@ -20,7 +22,7 @@ var chart;
 					if(element.lat != null && element.lat != '' && element.lon != null && element.lon != '' && 
 					   element.windSpd_kt != null && element.windSpd_kt != '' && element.height != null && element.height != ''){
 						var tmp_arr = [	element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time, 
-										element.gsp, element.tas, element.tan, element.mhd];
+										element.gsp, element.tas, element.tan, element.mhd]; //8
 						meteoPoints.push(tmp_arr);
 					}
 				});
@@ -28,6 +30,7 @@ var chart;
 			createChart(meteoPoints);
 		}
 	});
+}
 
 function createChart(meteoPoints){
 	globalMP = meteoPoints;
@@ -42,44 +45,63 @@ function createChart(meteoPoints){
 		var p = meteoPoints[i];
 
 		/* Determine the windbarb location */
-		for(var key in landingPathMap){
-			if (!landingPathMap.hasOwnProperty(key)) continue;
+		for(var LPKey in landingPathMap){
+			if (!landingPathMap.hasOwnProperty(LPKey)) continue;
 			
-			var obj = landingPathMap[key];
+			var obj = landingPathMap[LPKey];
 			
 			if(isMarkerInsidePolygon(p[0],p[1],obj)){
 				var tmp = {
-					label: key, x: Object.keys(landingPathMap).indexOf(key) + 1, y: p[4], angle: (p[3] < 0? p[3] + 360 : p[3]), 
+					label: LPKey, x: Object.keys(landingPathMap).indexOf(LPKey) + 1, y: p[4], angle: (p[3] < 0? p[3] + 360 : p[3]), 
 					markerImageUrl: "./windbarb-img/" + mod10NAdd5to10(p[2]) + ".png" , 
-					markerWidth: (p[2] <= 0? 30 : 10), markerHeight: (p[2] <= 0 ? 30 : 22)
+					markerWidth: (p[2] <= 0? 30 : 10), markerHeight: (p[2] <= 0 ? 30 : 22),
+					// Information for display
+					windSpd: p[2], windDir: p[3], gsp: p[8], tas: p[9], tan: p[10], mhd: p[11], address: p[6], title: p[5], time: p[7]
 					};
-					console.log("Testing : ");
-					console.log(tmp);
 				datas.push(tmp);
 			}
 		}
 	}
-	
-	chart = new CanvasJS.Chart("chartContainer",{  
-		title: {
-			text: "Windbarb in Landing Path"
-		},
-		theme: "theme2",
-		animationEnabled: true,
-		axisX: {
-		},
-		data: [
-			{
-				type: "scatter",
-				markerType: "none",
-				dataPoints: datas
-			}					
-		]
-	});
-	//chart.dataPoints = datas;
+	if(chart == null){
+		chart = new CanvasJS.Chart("chartContainer",{  
+			title: {
+				text: "Windbarb in Landing Path"
+			},
+			theme: "theme2",
+			animationEnabled: true,
+			toolTip:{
+				content: "{title} <br/>" + 
+						 "Ground Speed: {gsp} <br/>" +
+						 "True Airspeed: {tas} <br/>" +
+						 "Track Angle: {tan}&#176; <br/>" +
+						 "Magnetic Heading: {mhd} <br/>" +
+						 "Wind Speed: {windSpd}kt <br/>" +
+						 "Wind Direction: {windDir}&#176; <br/>" +
+						 "Height: {y}ft <br/>" +
+						 "Address: {address} <br/>" +
+						 "Time: {time}"
+						 
+			},
+			data: [
+				{
+					type: "scatter",
+					markerType: "none",
+					dataPoints: datas
+				}					
+			]
+		});
+	}else{
+		chart.options.data[0].dataPoints = datas;
+	}
 	chart.render();
 	addMarkerImages(chart);
 }
+callWindbarbJSON();
+windbarbTimer = setInterval(function() {
+			callWindbarbJSON();
+			console.log("Refreshing...");
+		}, refreshTime);
+
 
 /* CanvasJS Ready */
 function addMarkerImages(chart){
