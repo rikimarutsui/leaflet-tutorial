@@ -1,39 +1,87 @@
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="leaflet/leaflet.js"></script>
 <br/><!-- Just so that JSFiddle's Result label doesn't overlap the Chart -->
 <div id="chartContainer" style="height: 360px; width: 100%;"></div>
 
 <script>
-var chart = new CanvasJS.Chart("chartContainer",{  
-	title: {
-		text: "Windbarb in Landing Path"
-	},
-	theme: "theme2",
-	animationEnabled: true,
-	axisX: {
-	},
-	data: [
-		{
-			type: "scatter",
-			markerType: "none",
-			dataPoints: [
-				{ x: 10, y: 71, angle: 0, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
-				{ x: 20, y: 55, angle: 45, markerImageUrl: "http://i.imgur.com/rx4VPtF.png", markerWidth: 30, markerHeight: 30 },
-				{ x: 30, y: 50, angle: 90, markerImageUrl: "http://i.imgur.com/qrqIve0.png", markerWidth: 30, markerHeight: 30 },
-				{ x: 40, y: 70, angle: 135, markerImageUrl: "http://i.imgur.com/TUmQf5n.png", markerWidth: 30, markerHeight: 30 },
-				{ x: 45, y: 10, angle: 180, markerImageUrl: "./windbarb-img/5_n.png", markerWidth: 10, markerHeight: 22},
-				{ x: 48, y: 15, angle: 225, markerImageUrl: "./windbarb-img/200.png", markerWidth: 10, markerHeight: 22}
-			]
-		}					
-	]
-});
+var globalMP, landingPathMap = createLandingPath(), customMarkers = [];
+var url = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/windbarb-json/leopard-b-vm-all-landing.json';
+var chart;
 
-chart.render();
+/* Refresh the Windbarb Data */
+	$.getJSON(url, function(data){
+		if(isEmpty(data)){ createChart(globalMP); console.log(data);}
+		else{
+			var meteoPoints = [];
+			Object.entries(data).forEach(([key, val]) => {
+				data[key].forEach(function(element){
+					/** Frontend prevent null datas if it is for displaying **/
+					if(element.lat != null && element.lat != '' && element.lon != null && element.lon != '' && 
+					   element.windSpd_kt != null && element.windSpd_kt != '' && element.height != null && element.height != ''){
+						var tmp_arr = [	element.lat, element.lon, element.windSpd_kt, element.windDir_deg, element.height, element.Tid, key, element.time, 
+										element.gsp, element.tas, element.tan, element.mhd];
+						meteoPoints.push(tmp_arr);
+					}
+				});
+			});
+			createChart(meteoPoints);
+		}
+	});
 
-var customMarkers= [];
+function createChart(meteoPoints){
+	globalMP = meteoPoints;
+	var datas = [
+		{label: "L1", x: 1} , {label: "L2", x: 2}, {label: "L3", x: 3}, {label: "L4", x: 4}, {label: "L5", x: 5},
+		{label: "L6", x: 6} , {label: "L7", x: 7}, {label: "L8", x: 8}, {label: "L9", x: 9}, {label: "LA", x: 10},
+		{label: "LB", x: 11} , {label: "LC", x: 12}, {label: "LD", x: 13}, {label: "LE", x: 14}, {label: "LF", x: 15},
+		{label: "AZ", x: 16}
+	];
+	
+	for(var i = 0; i < meteoPoints.length; i++){
+		var p = meteoPoints[i];
 
-addMarkerImages(chart);
+		/* Determine the windbarb location */
+		for(var key in landingPathMap){
+			if (!landingPathMap.hasOwnProperty(key)) continue;
+			
+			var obj = landingPathMap[key];
+			
+			if(isMarkerInsidePolygon(p[0],p[1],obj)){
+				var tmp = {
+					label: key, x: Object.keys(landingPathMap).indexOf(key) + 1, y: p[4], angle: (p[3] < 0? p[3] + 360 : p[3]), 
+					markerImageUrl: "./windbarb-img/" + mod10NAdd5to10(p[2]) + ".png" , 
+					markerWidth: (p[2] <= 0? 30 : 10), markerHeight: (p[2] <= 0 ? 30 : 22)
+					};
+					console.log("Testing : ");
+					console.log(tmp);
+				datas.push(tmp);
+			}
+		}
+	}
+	
+	chart = new CanvasJS.Chart("chartContainer",{  
+		title: {
+			text: "Windbarb in Landing Path"
+		},
+		theme: "theme2",
+		animationEnabled: true,
+		axisX: {
+		},
+		data: [
+			{
+				type: "scatter",
+				markerType: "none",
+				dataPoints: datas
+			}					
+		]
+	});
+	//chart.dataPoints = datas;
+	chart.render();
+	addMarkerImages(chart);
+}
 
+/* CanvasJS Ready */
 function addMarkerImages(chart){
   for(var i = 0; i < chart.data[0].dataPoints.length; i++){
 
@@ -64,4 +112,178 @@ $(window).resize(function() {
     positionMarkerImage(customMarkers[i], i);
   }
 }); 
+/* CanvasJS */
+
+/* Landing Path */
+function createLandingPath(){
+	var landingPath = {
+		// Create the polygons
+		// South Arm
+		/*L.polygon([
+		    [22.19376, 113.67966],  // E
+			[22.236, 113.770], // F
+			[22.08946, 113.84514], // H
+			[22.0446, 113.74592] // G 
+		],{color: 'yellow'}).addTo(map);*/
+			"L1" : L.polygon([
+				[22.06687, 113.73631],  // L1G
+				[22.10982, 113.8345], // L1H
+				[22.08946, 113.84514], // H
+				[22.0446, 113.74592] // G 
+			]), 
+			
+			"L2" : L.polygon([
+				[22.06687, 113.73631],  // L1G
+				[22.10982, 113.8345], // L1H
+				[22.13081, 113.82385], // L2H
+				[22.08818, 113.72669] // L2G
+			]), 
+			
+			"L3" : L.polygon([
+				[22.10918, 113.71742],  // L3G
+				[22.1518, 113.81321], // L3H
+				[22.13081, 113.82385], // L2H
+				[22.08818, 113.72669] // L2G
+			]),
+			
+			"L4" : L.polygon([
+				[22.13049, 113.70815], // L4H
+				[22.17183, 113.80291], // L4G
+				[22.1518, 113.81321], // L3H
+				[22.10918, 113.71742]  // L3G
+			]),
+			
+			"L5" : L.polygon([
+				[22.15148, 113.69854],  // L5G
+				[22.19249, 113.79261], // L5H
+				[22.17183, 113.80291], // L4G
+				[22.13049, 113.70815] // L4H
+			]),
+			
+			"L6" : L.polygon([
+				[22.15148, 113.69854],  // L5G
+				[22.19249, 113.79261], // L5H
+				[22.21315, 113.78162], // L6G
+				[22.17342, 113.68927] // L6H
+			]),
+			
+			"L7" : L.polygon([
+				[22.19376, 113.67966],  // E
+				[22.236, 113.770], // F
+				[22.21315, 113.78162], // L6G
+				[22.17342, 113.68927] // L6H
+			]),
+		
+		// Triangle Turn
+		/*L.polygon([
+			[22.292, 113.750],  // A1
+			[22.200, 113.693],  // E1
+			[22.236, 113.770] // F1
+			
+		], {color: 'red'}).addTo(map);*/
+			"L8" : L.polygon([ 
+				[22.24668, 113.72189],  // AE
+				[22.200, 113.693],  // E1
+				[22.236, 113.770] // F1
+			]),
+			
+			"L9" : L.polygon([ 
+				[22.292, 113.750],  // A1
+				[22.24668, 113.72189],  // AE
+				[22.236, 113.770] // F1
+			]),
+		
+		// East Arm
+		/*L.polygon([
+			[22.28516, 113.75244], // A
+			[22.2491, 113.76532], // B
+			[22.293, 113.907], // D
+			[22.330, 113.894]  // C
+		]).addTo(map);*/
+			"LA" : L.polygon([
+				[22.28516, 113.75244], // A
+				[22.2491, 113.76532], // B
+				[22.25605, 113.78849],  // LAA
+				[22.29291, 113.7751] // LAB
+			]),
+			
+			"LB" : L.polygon([
+				[22.2999, 113.79879], // LBB
+				[22.26368, 113.81218], // LBA
+				[22.25605, 113.78849],  // LAA
+				[22.29291, 113.7751] // LAB
+			]),
+			
+			"LC" : L.polygon([
+				[22.2999, 113.79879], // LBA
+				[22.26368, 113.81218], // LBB
+				[22.27075, 113.83561],  // LCB
+				[22.3072, 113.82214] // LCA
+			]),
+			
+			"LD" : L.polygon([
+				[22.27861, 113.85921], // LDB
+				[22.31483, 113.84548], // LDA
+				[22.3072, 113.82214], // LCA
+				[22.27075, 113.83561]  // LCB
+			]),
+			
+			"LE" : L.polygon([
+				[22.27822, 113.85939], // LDB
+				[22.31483, 113.84548], // LDA
+				[22.32245, 113.86917], // LEB
+				[22.2856, 113.88256]  // LEA
+			]),
+			
+			"LF" : L.polygon([
+				[22.293, 113.907], // D
+				[22.330, 113.894],  // C
+				[22.32245, 113.86917], // LEB
+				[22.2856, 113.88256]  // LEA
+			]),
+		
+		// Airport Zone
+			"AZ" : L.polygon([
+				[22.293, 113.907], // D
+				[22.330, 113.894],  // C
+				[22.33682, 113.91724], // AZ2
+				[22.30014, 113.92994] // AZ1
+			])
+		};
+	return landingPath;
+}
+
+/* Check the latlng is in the polygon area */
+function isMarkerInsidePolygon(lat, lng, poly) {
+	var polyPoints = poly.getLatLngs()[0];       
+	var x = lat, y = lng;
+	var inside = false;
+	for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+		var xi = polyPoints[i].lat, yi = polyPoints[i].lng;
+		var xj = polyPoints[j].lat, yj = polyPoints[j].lng;
+
+		var intersect = ((yi > y) != (yj > y))
+			&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+		if (intersect) inside = !inside;
+	}
+	return inside;
+}
+
+function mod10NAdd5to10(windSpd){
+	var mod10Val = windSpd % 10;
+	
+	if(mod10Val == 5 || mod10Val == 0) return windSpd;
+	else if(mod10Val > 0 && mod10Val < 5) return (windSpd - mod10Val + 5);
+	else return (windSpd - mod10Val + 10);
+}
+
+/* Get the object is empty */
+function isEmpty(obj) {
+	for(var key in obj) {
+		if(obj.hasOwnProperty(key))
+			return false;
+	}
+	return true;
+}
+
 </script>

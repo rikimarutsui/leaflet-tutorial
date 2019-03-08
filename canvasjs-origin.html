@@ -1,0 +1,73 @@
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<br/><!-- Just so that JSFiddle's Result label doesn't overlap the Chart -->
+<div id="chartContainer" style="height: 360px; width: 100%;"></div>
+
+<script>
+var chart = new CanvasJS.Chart("chartContainer",{  
+	title: {
+		text: "Windbarb in Landing Path"
+	},
+	theme: "light1",
+	animationEnabled: true,
+	axisX: {
+	},
+	data: [
+		{
+			type: "scatter",
+			markerType: "none",
+			dataPoints: [
+				{ x: 10, y: 71, angle: 0, markerImageUrl: "./windbarb-img/45.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 20, y: 55, angle: 45, markerImageUrl: "./windbarb-img/80.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 30, y: 50, angle: 90, markerImageUrl: "./windbarb-img/10.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 40, y: 70, angle: 135, markerImageUrl: "./windbarb-img/150.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 45, y: 10, angle: 180, markerImageUrl: "./windbarb-img/5_n.png", markerWidth: 10, markerHeight: 22},
+				{ x: 48, y: 15, angle: 225, markerImageUrl: "./windbarb-img/200.png", markerWidth: 10, markerHeight: 22},
+				{ x: 15, y: 70, angle: 0, markerImageUrl: "./windbarb-img/55.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 22, y: 18, angle: 270, markerImageUrl: "./windbarb-img/85.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 30, y: 77, angle: 10, markerImageUrl: "./windbarb-img/10.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 26, y: 17, angle: 10, markerImageUrl: "./windbarb-img/10.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 36, y: 27, angle: 10, markerImageUrl: "./windbarb-img/10.png", markerWidth: 10, markerHeight: 22 },
+				{ x: 28, y: 37, angle: 10, markerImageUrl: "./windbarb-img/10.png", markerWidth: 10, markerHeight: 22 }
+			]
+		}					
+	]
+});
+
+chart.render();
+
+var customMarkers= [];
+
+addMarkerImages(chart);
+
+function addMarkerImages(chart){
+  for(var i = 0; i < chart.data[0].dataPoints.length; i++){
+
+    customMarkers.push($("<img>").attr("src", chart.data[0].dataPoints[i].markerImageUrl)
+                       .css("display", "none")
+                       .css("height", chart.data[0].dataPoints[i].markerHeight)
+                       .css("width", chart.data[0].dataPoints[i].markerWidth)
+					   .css("transform", "rotate(" + chart.data[0].dataPoints[i].angle + "deg)")
+                       .appendTo($("#chartContainer>.canvasjs-chart-container"))
+                      );        
+    positionMarkerImage(customMarkers[i], i);
+  }    
+}
+
+function positionMarkerImage(customMarker, index){ 
+  var pixelX = chart.axisX[0].convertValueToPixel(chart.options.data[0].dataPoints[index].x);
+  var pixelY = chart.axisY[0].convertValueToPixel(chart.options.data[0].dataPoints[index].y);
+  
+  customMarker.css({"position": "absolute", 
+                    "display": "block",
+                    "top": pixelY - customMarker.height()/2,
+                    "left": pixelX - customMarker.width()/2
+                   });
+}
+
+$(window).resize(function() {
+  for(var i = 0; i < chart.data[0].dataPoints.length; i++){
+    positionMarkerImage(customMarkers[i], i);
+  }
+}); 
+</script>
