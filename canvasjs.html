@@ -5,8 +5,9 @@
 <div id="chartContainer" style="height: 360px; width: 100%;"></div>
 
 <script>
-var globalMP, landingPathMap = createLandingPath(), customMarkers = [], refreshTime = 5000;
-var url = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/windbarb-json/leopard-b-vm-all-landing.json';
+var globalMP, landingPathMap = createLandingPath(), customMarkers = [], refreshTime = 10000;
+//var url = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/windbarb-json/leopard-b-vm.json';
+var url = 'http://10.53.140.111:5000/minutes';
 var chart = null;
 
 
